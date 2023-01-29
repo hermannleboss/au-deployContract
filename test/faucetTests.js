@@ -45,13 +45,13 @@ describe('Faucet', function () {
     await expect(faucet.connect(signer2).withdraw(1000)).not.to.be.reverted;
   });
 
-  it('should not allow a signer != onwer to withdrawAll', async function () {
+  it('should not allow a signer != owner to withdrawAll', async function () {
     const { owner, signer2, faucet } = await loadFixture(deployContractAndSetVariables);
     await expect(faucet.connect(signer2).withdrawAll()).to.be.revertedWith("Only the owner is allowed");
     await expect(faucet.connect(owner).withdrawAll()).not.to.be.reverted;
   });
 
-  it('should not allow a signer != onwer to destroyFaucet', async function () {
+  it('should not allow a signer != owner to destroyFaucet', async function () {
     const { owner, signer2, faucet, provider } = await loadFixture(deployContractAndSetVariables);
     await expect(faucet.connect(signer2).destroyFaucet()).to.be.revertedWith("Only the owner is allowed");
     await expect(faucet.connect(owner).destroyFaucet()).not.to.be.reverted;
