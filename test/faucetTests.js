@@ -1,5 +1,7 @@
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { expect } = require('chai');
+require('dotenv').config();
+
 
 describe('Faucet', function () {
   // We define a fixture to reuse the same setup in every test.
@@ -11,11 +13,15 @@ describe('Faucet', function () {
     const faucet = await Faucet.deploy({value: deployAmount});
     let withdrawAmount = ethers.utils.parseUnits("1", "ether");
 
+    const url = process.env.GOERLI_URL;
+
+    const provider = new ethers.providers.JsonRpcProvider(url);
+
     const [owner, signer2] = await ethers.getSigners();
 
     console.log(" faucet.balance",faucet.accountsBalance)
     console.log('Signer 1 address: ', owner.address);
-    return { faucet, owner,signer2, withdrawAmount };
+    return { faucet, owner,signer2, withdrawAmount, provider };
   }
 
   it('should deploy and set the owner correctly', async function () {
@@ -46,9 +52,10 @@ describe('Faucet', function () {
   });
 
   it('should not allow a signer != onwer to destroyFaucet', async function () {
-    const { owner, signer2, faucet } = await loadFixture(deployContractAndSetVariables);
+    const { owner, signer2, faucet, provider } = await loadFixture(deployContractAndSetVariables);
     await expect(faucet.connect(signer2).destroyFaucet()).to.be.revertedWith("Only the owner is allowed");
     await expect(faucet.connect(owner).destroyFaucet()).not.to.be.reverted;
+    await expect(await provider.getCode(faucet.address)).to.equal("0x")
   });
 
   //should allow withdraw to every user
